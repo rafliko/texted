@@ -105,6 +105,63 @@ int main(int argc, char** argv)
                     }
                 }
 
+                if (event.key.control && event.key.code == sf::Keyboard::C)
+                {
+                    string str = "";
+                    sf::Vector2i from, to;
+                    if (selectFrom.y < selectTo.y)
+                    {
+                        from = selectFrom;
+                        to = selectTo;
+                    }
+                    else
+                    {
+                        from = selectTo;
+                        to = selectFrom;
+                    }
+
+                    if (from.y == to.y)
+                    {
+                        str = lines[from.y].substr(from.x, to.x);
+                    }
+                    else
+                    {
+                        for (int i = from.y; i <= to.y; i++)
+                        {
+                            if (i == from.y)
+                            {
+                                str += lines[i].substr(from.x);
+                            }
+                            else if (i == to.y)
+                            {
+                                str += lines[i].substr(0, to.x);
+                            }
+                            else
+                            {
+                                str += lines[i];
+                            }
+                            str += "\n";
+                        }
+                    }
+                    sf::Clipboard::setString(str);
+                }
+
+                if (event.key.control && event.key.code == sf::Keyboard::V)
+                {
+                    lines[cursor.y].insert(cursor.x, sf::Clipboard::getString());
+                    while (true)
+                    {
+                        int i = lines[cursor.y].find('\n');
+                        if (i == -1) break;
+                        else
+                        {
+                            lines.insert(lines.begin() + cursor.y + 1, lines[cursor.y].substr(i+1));
+                            lines[cursor.y] = lines[cursor.y].substr(0, i);
+                            cursor.y++;
+                        }
+                    }
+                }
+
                 if (event.key.scancode == sf::Keyboard::Scan::Home) { cursor.x = 0; if (selecting) selectTo = cursor; }
                 if (event.key.scancode == sf::Keyboard::Scan::End) { cursor.x = lines[cursor.y].length(); if (selecting) selectTo = cursor; }
 
@@ -114,17 +171,29 @@ int main(int argc, char** argv)
                 if (event.key.scancode == sf::Keyboard::Scan::Delete && cursor.x < lines[cursor.y].length())
                 {
                     lines[cursor.y].erase(cursor.x, 1);
+
+                    selectFrom = sf::Vector2i(0, 0);
+                    selectTo = sf::Vector2i(0, 0);
+                    selecting = false;
                 }
                 else if (event.key.scancode == sf::Keyboard::Scan::Delete && cursor.x == lines[cursor.y].length() && cursor.y<lines.size()-1)
                 {
                     lines[cursor.y] += lines[cursor.y + 1];
                     lines.erase(lines.begin() + cursor.y + 1);
+
+                    selectFrom = sf::Vector2i(0, 0);
+                    selectTo = sf::Vector2i(0, 0);
+                    selecting = false;
                 }
 
                 if (event.key.scancode == sf::Keyboard::Scan::Backspace && cursor.x > 0)
                 {
                     lines[cursor.y].erase(cursor.x - 1, 1);
                     cursor.x--;
+
+                    selectFrom = sf::Vector2i(0, 0);
+                    selectTo = sf::Vector2i(0, 0);
+                    selecting = false;
                 }
                 else if (event.key.scancode == sf::Keyboard::Scan::Backspace && cursor.x == 0 && cursor.y > 0)
                 {
@@ -132,6 +201,10 @@ int main(int argc, char** argv)
                     cursor.x = lines[cursor.y].length();
                     lines[cursor.y] += lines[cursor.y+1];
                     lines.erase(lines.begin() + cursor.y+1);
+
+                    selectFrom = sf::Vector2i(0, 0);
+                    selectTo = sf::Vector2i(0, 0);
+                    selecting = false;
                 }
 
                 if (event.key.scancode == sf::Keyboard::Scan::Enter)
@@ -140,6 +213,10 @@ int main(int argc, char** argv)
                     lines[cursor.y] = lines[cursor.y].substr(0, cursor.x);
                     cursor.x = 0;
                     cursor.y++;
+
+                    selectFrom = sf::Vector2i(0, 0);
+                    selectTo = sf::Vector2i(0, 0);
+                    selecting = false;
                 }
             }
 
@@ -193,6 +270,10 @@ int main(int argc, char** argv)
                 {
                     lines[cursor.y].insert(cursor.x, 1, event.text.unicode);
                     cursor.x++;
+
+                    selectFrom = sf::Vector2i(0, 0);
+                    selectTo = sf::Vector2i(0, 0);
+                    selecting = false;
                 }
             }
         }

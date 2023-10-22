@@ -109,7 +109,7 @@ int main(int argc, char** argv)
                 {
                     string str = "";
                     sf::Vector2i from, to;
-                    if (selectFrom.y < selectTo.y)
+                    if (selectFrom.y <= selectTo.y)
                     {
                         from = selectFrom;
                         to = selectTo;

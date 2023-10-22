@@ -1,6 +1,7 @@
 #pragma once
 
 int fontSize = 18;
+int scrollSpeed = 4;
 
 sf::Color fgColor = sf::Color::White;
 sf::Color bgColor = sf::Color(30, 30, 30, 255);

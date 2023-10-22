@@ -149,6 +149,7 @@ int main(int argc, char** argv)
                 if (event.key.control && event.key.code == sf::Keyboard::V)
                 {
                     lines[cursor.y].insert(cursor.x, sf::Clipboard::getString());
+                    cursor.x = lines[cursor.y].length();
                     while (true)
                     {
                         int i = lines[cursor.y].find('\n');
@@ -158,6 +159,7 @@ int main(int argc, char** argv)
                             lines.insert(lines.begin() + cursor.y + 1, lines[cursor.y].substr(i+1));
                             lines[cursor.y] = lines[cursor.y].substr(0, i);
                             cursor.y++;
+                            cursor.x = lines[cursor.y].length();
                         }
                     }
                 }

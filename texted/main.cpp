@@ -122,7 +122,8 @@ int main(int argc, char** argv)
 
                     if (from.y == to.y)
                     {
-                        str = lines[from.y].substr(from.x, to.x);
+                        if(from.x<to.x)  str = lines[from.y].substr(from.x, to.x-from.x);
+                        else str = lines[from.y].substr(to.x, from.x - to.x);
                     }
                     else
                     {

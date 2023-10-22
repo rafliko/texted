@@ -28,7 +28,7 @@ int main(int argc, char** argv)
     if (argc > 1)
     {
         programPath = argv[0];
-        programPath = programPath.substr(0, programPath.find_last_of('/') + 1);
+        programPath = programPath.substr(0, programPath.find_last_of('\\') + 1);
         filePath = argv[1];
         argc--;
     }
@@ -95,23 +95,25 @@ int main(int argc, char** argv)
                 {
                     lines[cursorY].erase(cursorX, 1);
                 }
-                if (event.key.scancode == sf::Keyboard::Scan::Delete && cursorX == lines[cursorY].length())
+                else if (event.key.scancode == sf::Keyboard::Scan::Delete && cursorX == lines[cursorY].length() && cursorY<lines.size()-1)
                 {
                     lines[cursorY] += lines[cursorY + 1];
                     lines.erase(lines.begin() + cursorY + 1);
                 }
+
                 if (event.key.scancode == sf::Keyboard::Scan::Backspace && cursorX > 0)
                 {
                     lines[cursorY].erase(cursorX - 1, 1);
                     cursorX--;
                 }
-                if (event.key.scancode == sf::Keyboard::Scan::Backspace && cursorX == 0)
+                else if (event.key.scancode == sf::Keyboard::Scan::Backspace && cursorX == 0 && cursorY > 0)
                 {
                     cursorY--;
                     cursorX = lines[cursorY].length();
                     lines[cursorY] += lines[cursorY+1];
                     lines.erase(lines.begin() + cursorY+1);
                 }
+
                 if (event.key.scancode == sf::Keyboard::Scan::Enter)
                 {
                     lines.insert(lines.begin()+cursorY+1,lines[cursorY].substr(cursorX));

@@ -1,12 +1,12 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <list>
 #include <vector>
 #include <SFML/Graphics.hpp>
 #include "config.h"
 using namespace std;
 
+string programPath = "";
 string filePath = "";
 string status = "";
 
@@ -22,13 +22,22 @@ int offsetY = 0;
 int cursorX = 0;
 int cursorY = 0;
 
-int main()
+int main(int argc, char** argv)
 {
     setlocale(LC_ALL, "");
     while (true)
     {
-        cout << "Path to file: ";
-        cin >> filePath;
+        if (argc > 1)
+        {
+            programPath = argv[0];
+            programPath = programPath.substr(0,programPath.find_last_of('/')+1);
+            filePath = argv[1];
+            argc--;
+        }
+        else
+        {
+            break;
+        }
 
         ifstream file(filePath);
         if (!file.fail())
@@ -39,7 +48,6 @@ int main()
                 lines.push_back(line);
             }
             file.close();
-            status = filePath + "\tL:"+to_string(cursorY+1)+"\tC:"+to_string(cursorX);
         }
         else
         {
@@ -47,7 +55,7 @@ int main()
         }
 
         sf::Font font;
-        font.loadFromFile("Fonts/Hack/Hack-Regular.ttf");
+        font.loadFromFile(programPath+"Fonts/Hack/Hack-Regular.ttf");
 
         sf::Text txt;
         txt.setFont(font);
@@ -69,11 +77,7 @@ int main()
             sf::Event event;
             while (window.pollEvent(event))
             {
-                if (event.type == sf::Event::Closed)
-                {
-                    lines.clear();
-                    window.close();
-                }
+                if (event.type == sf::Event::Closed) window.close();
 
                 if (event.type == sf::Event::Resized)
                 {
@@ -177,7 +181,7 @@ int main()
             window.draw(rect);
 
             // line numbers and lines
-            for (int i = -offsetY; i < window.getSize().y / charHeight - offsetY; i++)
+            for (int i = -offsetY; i < window.getSize().y / charHeight - offsetY; i++) // only draw visible lines
             {
                 if (i == lines.size()) break;
                 txt.setFillColor(lineNumColor);

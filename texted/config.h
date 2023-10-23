@@ -16,7 +16,7 @@ namespace
 	std::string datatypes[] = { "int", "bool", "string", "std::string", "vector", "std::vector", "list", "std::list", "char", "float", "double", "void" };
 	sf::Color dtColor = sf::Color::Cyan;
 
-	sf::Color strColor = sf::Color::Color(200, 100, 0, 255);
+	sf::Color strColor = sf::Color(200, 100, 0, 255);
 	sf::Color numColor = sf::Color::Yellow;
 	sf::Color commentColor = sf::Color::Green;
 }

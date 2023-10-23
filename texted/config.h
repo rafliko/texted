@@ -10,10 +10,10 @@ namespace
 	sf::Color lineNumColor = sf::Color::Yellow;
 	sf::Color lineNumBgColor = sf::Color(50, 50, 50, 255);
 
-	std::string keywords[] = { "while", "for", "if", "return", "break", "continue", "switch", "do" };
+	std::string keywords[] = { "while", "for", "if", "else", "new", "return", "break", "continue", "switch", "do", "var", "auto" };
 	sf::Color kwColor = sf::Color::Magenta;
 
-	std::string datatypes[] = { "int", "bool", "string", "std::string", "vector", "std::vector", "list", "std::list", "char", "float", "double", "void" };
+	std::string datatypes[] = { "int", "bool", "string", "std::string", "vector", "std::vector", "list", "std::list", "char", "float", "double", "void", "class", "struct"};
 	sf::Color dtColor = sf::Color::Cyan;
 
 	sf::Color strColor = sf::Color(200, 100, 0, 255);

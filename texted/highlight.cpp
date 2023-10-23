@@ -33,7 +33,8 @@ void highlightLine(ln& line)
             else offset = pos + 1;
 
             if (line.txt[pos - 1] >= '!' && line.txt[pos - 1] <= '~') continue;
-            if (line.txt[pos + keywords[i].length()] != ' ' &&
+            if (pos + datatypes[i].length() < line.txt.length() &&
+                line.txt[pos + keywords[i].length()] != ' ' &&
                 line.txt[pos + keywords[i].length()] != '(' &&
                 line.txt[pos + keywords[i].length()] != ';') continue;
 
@@ -57,7 +58,8 @@ void highlightLine(ln& line)
             else offset = pos + 1;
 
             if (line.txt[pos - 1] >= '!' && line.txt[pos - 1] <= '~') continue;
-            if (line.txt[pos + datatypes[i].length()] != ' ' &&
+            if (pos + datatypes[i].length() < line.txt.length() &&
+                line.txt[pos + datatypes[i].length()] != ' ' &&
                 line.txt[pos + datatypes[i].length()] != '(' &&
                 line.txt[pos + datatypes[i].length()] != ';') continue;
 

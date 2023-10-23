@@ -1,8 +1,4 @@
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <vector>
-#include <SFML/Graphics.hpp>
+#include "main.h"
 #include "config.h"
 using namespace std;
 
@@ -10,7 +6,7 @@ string programPath = "";
 string filePath = "";
 string status = "";
 
-vector<string> lines;
+vector<ln> lines;
 
 int spacing = 1;
 int charHeight = fontSize;
@@ -42,7 +38,8 @@ int main(int argc, char** argv)
         string line;
         while (getline(file, line))
         {
-            lines.push_back(line);
+            lines.push_back({ line, setLineColor(line.length(), fgColor)});
+            highlightLine(lines[lines.size()-1]);
         }
         file.close();
     }
@@ -122,8 +119,8 @@ int main(int argc, char** argv)
 
                     if (from.y == to.y)
                     {
-                        if(from.x<to.x)  str = lines[from.y].substr(from.x, to.x-from.x);
-                        else str = lines[from.y].substr(to.x, from.x - to.x);
+                        if(from.x<to.x)  str = lines[from.y].txt.substr(from.x, to.x-from.x);
+                        else str = lines[from.y].txt.substr(to.x, from.x - to.x);
                     }
                     else
                     {
@@ -131,15 +128,15 @@ int main(int argc, char** argv)
                         {
                             if (i == from.y)
                             {
-                                str += lines[i].substr(from.x);
+                                str += lines[i].txt.substr(from.x);
                             }
                             else if (i == to.y)
                             {
-                                str += lines[i].substr(0, to.x);
+                                str += lines[i].txt.substr(0, to.x);
                             }
                             else
                             {
-                                str += lines[i];
+                                str += lines[i].txt;
                             }
                             str += "\n";
                         }
@@ -149,39 +146,44 @@ int main(int argc, char** argv)
 
                 if (event.key.control && event.key.code == sf::Keyboard::V)
                 {
-                    lines[cursor.y].insert(cursor.x, sf::Clipboard::getString());
-                    cursor.x = lines[cursor.y].length();
+                    lines[cursor.y].txt.insert(cursor.x, sf::Clipboard::getString());
+                    cursor.x = lines[cursor.y].txt.length();
                     while (true)
                     {
-                        int i = lines[cursor.y].find('\n');
+                        int i = lines[cursor.y].txt.find('\n');
                         if (i == -1) break;
                         else
                         {
-                            lines.insert(lines.begin() + cursor.y + 1, lines[cursor.y].substr(i+1));
-                            lines[cursor.y] = lines[cursor.y].substr(0, i);
+                            string str = lines[cursor.y].txt.substr(i + 1);
+                            lines.insert(lines.begin() + cursor.y + 1, { str, setLineColor(str.length(), fgColor)});
+                            lines[cursor.y].txt = lines[cursor.y].txt.substr(0, i);
                             cursor.y++;
-                            cursor.x = lines[cursor.y].length();
+                            cursor.x = lines[cursor.y].txt.length();
                         }
                     }
                 }
 
                 if (event.key.scancode == sf::Keyboard::Scan::Home) { cursor.x = 0; if (selecting) selectTo = cursor; }
-                if (event.key.scancode == sf::Keyboard::Scan::End) { cursor.x = lines[cursor.y].length(); if (selecting) selectTo = cursor; }
+                if (event.key.scancode == sf::Keyboard::Scan::End) { cursor.x = lines[cursor.y].txt.length(); if (selecting) selectTo = cursor; }
 
                 if (event.key.scancode == sf::Keyboard::Scan::PageUp) offset.y += window.getSize().y / charHeight - 2;
                 if (event.key.scancode == sf::Keyboard::Scan::PageDown) offset.y -= window.getSize().y / charHeight - 2;
 
-                if (event.key.scancode == sf::Keyboard::Scan::Delete && cursor.x < lines[cursor.y].length())
+                if (event.key.scancode == sf::Keyboard::Scan::Delete && cursor.x < lines[cursor.y].txt.length())
                 {
-                    lines[cursor.y].erase(cursor.x, 1);
+                    lines[cursor.y].txt.erase(cursor.x, 1);
+                    lines[cursor.y].color = setLineColor(lines[cursor.y].txt.length(), fgColor);
+                    highlightLine(lines[cursor.y]);
 
                     selectFrom = sf::Vector2i(0, 0);
                     selectTo = sf::Vector2i(0, 0);
                     selecting = false;
                 }
-                else if (event.key.scancode == sf::Keyboard::Scan::Delete && cursor.x == lines[cursor.y].length() && cursor.y<lines.size()-1)
+                else if (event.key.scancode == sf::Keyboard::Scan::Delete && cursor.x == lines[cursor.y].txt.length() && cursor.y<lines.size()-1)
                 {
-                    lines[cursor.y] += lines[cursor.y + 1];
+                    lines[cursor.y].txt += lines[cursor.y + 1].txt;
+                    lines[cursor.y].color = setLineColor(lines[cursor.y].txt.length(), fgColor);
+                    highlightLine(lines[cursor.y]);
                     lines.erase(lines.begin() + cursor.y + 1);
 
                     selectFrom = sf::Vector2i(0, 0);
@@ -191,7 +193,9 @@ int main(int argc, char** argv)
 
                 if (event.key.scancode == sf::Keyboard::Scan::Backspace && cursor.x > 0)
                 {
-                    lines[cursor.y].erase(cursor.x - 1, 1);
+                    lines[cursor.y].txt.erase(cursor.x - 1, 1);
+                    lines[cursor.y].color = setLineColor(lines[cursor.y].txt.length(), fgColor);
+                    highlightLine(lines[cursor.y]);
                     cursor.x--;
 
                     selectFrom = sf::Vector2i(0, 0);
@@ -201,8 +205,10 @@ int main(int argc, char** argv)
                 else if (event.key.scancode == sf::Keyboard::Scan::Backspace && cursor.x == 0 && cursor.y > 0)
                 {
                     cursor.y--;
-                    cursor.x = lines[cursor.y].length();
-                    lines[cursor.y] += lines[cursor.y+1];
+                    cursor.x = lines[cursor.y].txt.length();
+                    lines[cursor.y].txt += lines[cursor.y+1].txt;
+                    lines[cursor.y].color = setLineColor(lines[cursor.y].txt.length(), fgColor);
+                    highlightLine(lines[cursor.y]);
                     lines.erase(lines.begin() + cursor.y+1);
 
                     selectFrom = sf::Vector2i(0, 0);
@@ -212,8 +218,11 @@ int main(int argc, char** argv)
 
                 if (event.key.scancode == sf::Keyboard::Scan::Enter)
                 {
-                    lines.insert(lines.begin()+cursor.y+1,lines[cursor.y].substr(cursor.x));
-                    lines[cursor.y] = lines[cursor.y].substr(0, cursor.x);
+                    string str = lines[cursor.y].txt.substr(cursor.x);
+                    lines.insert(lines.begin() + cursor.y + 1, { str, setLineColor(str.length(), fgColor)});
+                    lines[cursor.y].txt = lines[cursor.y].txt.substr(0, cursor.x);
+                    lines[cursor.y].color = setLineColor(lines[cursor.y].txt.length(), fgColor);
+                    highlightLine(lines[cursor.y]);
                     cursor.x = 0;
                     cursor.y++;
 
@@ -271,7 +280,9 @@ int main(int argc, char** argv)
             {
                 if (event.text.unicode >= 32 && event.text.unicode <= 126)
                 {
-                    lines[cursor.y].insert(cursor.x, 1, event.text.unicode);
+                    lines[cursor.y].txt.insert(cursor.x, 1, event.text.unicode);
+                    lines[cursor.y].color.push_back(fgColor);
+                    highlightLine(lines[cursor.y]);
                     cursor.x++;
 
                     selectFrom = sf::Vector2i(0, 0);
@@ -288,17 +299,17 @@ int main(int argc, char** argv)
         if (offset.y < -((int)lines.size()-1)) offset.y = -((int)lines.size()-1);
 
         if (cursor.x < 0) cursor.x = 0;
-        if (cursor.x > lines[cursor.y].length()) cursor.x = lines[cursor.y].length();
+        if (cursor.x > lines[cursor.y].txt.length()) cursor.x = lines[cursor.y].txt.length();
         if (cursor.y < 0) cursor.y = 0;
         if (cursor.y > lines.size()-1) cursor.y = lines.size()-1;
 
         if (selectFrom.x < 0) selectFrom.x = 0;
-        if (selectFrom.x > lines[selectFrom.y].length()) selectFrom.x = lines[selectFrom.y].length();
+        if (selectFrom.x > lines[selectFrom.y].txt.length()) selectFrom.x = lines[selectFrom.y].txt.length();
         if (selectFrom.y < 0) selectFrom.y = 0;
         if (selectFrom.y > lines.size() - 1) selectFrom.y = lines.size() - 1;
 
         if (selectTo.x < 0) selectTo.x = 0;
-        if (selectTo.x > lines[selectTo.y].length()) selectTo.x = lines[selectTo.y].length();
+        if (selectTo.x > lines[selectTo.y].txt.length()) selectTo.x = lines[selectTo.y].txt.length();
         if (selectTo.y < 0) selectTo.y = 0;
         if (selectTo.y > lines.size() - 1) selectTo.y = lines.size() - 1;
 
@@ -342,7 +353,7 @@ int main(int argc, char** argv)
             {
                 if (i == from.y)
                 {
-                    rect.setSize(sf::Vector2f(charWidth * lines[i].length() - charWidth * from.x, charHeight));
+                    rect.setSize(sf::Vector2f(charWidth * lines[i].txt.length() - charWidth * from.x, charHeight));
                     rect.setPosition(charWidth * offset.x + charWidth * from.x, charHeight* i + charHeight * offset.y);
                 }
                 else if (i == to.y)
@@ -352,7 +363,7 @@ int main(int argc, char** argv)
                 }
                 else
                 {
-                    rect.setSize(sf::Vector2f(charWidth* lines[i].length(), charHeight));
+                    rect.setSize(sf::Vector2f(charWidth* lines[i].txt.length(), charHeight));
                     rect.setPosition(charWidth* offset.x, charHeight* i + charHeight * offset.y);
                 }
                 rect.setFillColor(sf::Color::Blue);
@@ -368,11 +379,11 @@ int main(int argc, char** argv)
             txt.setPosition(0, charHeight * i + charHeight * offset.y);
             txt.setString(to_string(i + 1));
             window.draw(txt);
-            txt.setFillColor(fgColor);
-            for (int j = 0; j < lines[i].length(); j++)
+            for (int j = 0; j < lines[i].txt.length(); j++)
             {
+                txt.setFillColor(lines[i].color[j]);
                 txt.setPosition(charWidth * offset.x + charWidth * j, charHeight * i + charHeight * offset.y);
-                txt.setString(lines[i][j]);
+                txt.setString(lines[i].txt[j]);
                 window.draw(txt);
             }
         }

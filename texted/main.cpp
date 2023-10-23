@@ -163,6 +163,19 @@ int main(int argc, char** argv)
                     }
                 }
 
+                if (event.key.control && event.key.code == sf::Keyboard::S)
+                {
+                    string str = "";
+                    for (int i = 0; i < lines.size(); i++)
+                    {
+                        str += lines[i].txt;
+                        if (i < lines.size() - 1) str += "\n";
+                    }
+                    ofstream file(filePath);
+                    file << str << endl;
+                    file.close();
+                }
+
                 if (event.key.scancode == sf::Keyboard::Scan::Home) { cursor.x = 0; if (selecting) selectTo = cursor; }
                 if (event.key.scancode == sf::Keyboard::Scan::End) { cursor.x = lines[cursor.y].txt.length(); if (selecting) selectTo = cursor; }
 
